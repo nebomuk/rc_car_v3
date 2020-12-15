@@ -9,6 +9,8 @@
 
 // +5V, GND, ENB and ENA are left floating on the L298 Board
 
+// TODO use analogWrite to create pwm, see purple pins
+
 #define STATE_LEFT 0
 #define STATE_RIGHT 1
 #define STATE_FORWARD 2
@@ -112,10 +114,12 @@ void loop() {
     {
       case 's': 
       backward();
+      Serial.write("backward");
       break;
       
       case 'w':
       forward();
+      Serial.write("forward");
       break;
       
       case 'm':
@@ -124,10 +128,12 @@ void loop() {
       
       case 'a':
       left();
+      Serial.write("left");
       break;
         
       case 'd':
       right();
+      Serial.write("right");
       break;
       
       case 'n':
