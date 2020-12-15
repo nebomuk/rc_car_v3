@@ -17,6 +17,11 @@
 #define STATE_BACKWARD 3
 #define STATE_OFF 4
 
+const int IN1 = P2_1;
+const int IN2 = P2_0;
+const int IN3 = P1_4;
+const int IN4 = P1_5;
+
 // initial states
 unsigned char steeringState = STATE_OFF;
 unsigned char motorState = STATE_OFF;
@@ -24,16 +29,16 @@ unsigned char motorState = STATE_OFF;
 inline void right()
 {
   steeringState = STATE_RIGHT;
-  digitalWrite(P1_4, LOW); 
-  digitalWrite(P1_5, HIGH); 
+  digitalWrite(IN3, LOW); 
+  digitalWrite(IN4, HIGH); 
 }
 
 
 inline void left()
 {
   steeringState = STATE_LEFT;
-  digitalWrite(P1_4, HIGH); 
-  digitalWrite(P1_5, LOW); 
+  digitalWrite(IN3, HIGH); 
+  digitalWrite(IN4, LOW); 
 }
 
 inline void straightOn()
@@ -57,40 +62,40 @@ else if(steeringState == STATE_LEFT)
 inline void forward()
 {
   motorState = STATE_FORWARD;
-  digitalWrite(P2_0,LOW);
-  digitalWrite(P2_1,HIGH);
+  digitalWrite(IN2,LOW);
+  digitalWrite(IN1,HIGH);
 }
 
 inline void backward()
 {
   motorState = STATE_BACKWARD;
-  digitalWrite(P2_0,HIGH);
-  digitalWrite(P2_1,LOW);
+  digitalWrite(IN2,HIGH);
+  digitalWrite(IN1,LOW);
 }
 
 inline void motorOff()
 {
 motorState = STATE_OFF;
-digitalWrite(P2_0, HIGH); 
-digitalWrite(P2_1, HIGH);   
+digitalWrite(IN2, HIGH); 
+digitalWrite(IN1, HIGH);   
 }
 
 
 inline void steeringCoilOff()
 {
 steeringState = STATE_OFF;
-digitalWrite(P1_4, HIGH); 
-digitalWrite(P1_5, HIGH); 
+digitalWrite(IN3, HIGH); 
+digitalWrite(IN4, HIGH); 
 }
 
 void setup() {                
 
 
-pinMode(P1_4, OUTPUT);
-pinMode(P1_5, OUTPUT); 
+pinMode(IN3, OUTPUT);
+pinMode(IN4, OUTPUT); 
 
-pinMode(P2_0, OUTPUT); 
-pinMode(P2_1, OUTPUT); 
+pinMode(IN2, OUTPUT); 
+pinMode(IN1, OUTPUT); 
 
 
 
@@ -114,30 +119,32 @@ void loop() {
     {
       case 's': 
       backward();
-      Serial.write("backward");
+      Serial.println("backward");
       break;
       
       case 'w':
       forward();
-      Serial.write("forward");
+      Serial.println("forward");
       break;
       
       case 'm':
+      Serial.println("motorOff");
       motorOff();
       break;
       
       case 'a':
       left();
-      Serial.write("left");
+      Serial.println("left");
       break;
         
       case 'd':
       right();
-      Serial.write("right");
+      Serial.println("right");
       break;
       
       case 'n':
       {
+        Serial.println("n");
         if(motorState == STATE_FORWARD)
         {
           motorOff(); // motorState = STATE_OFF
@@ -158,6 +165,7 @@ void loop() {
       }
       
       case 'f':
+      Serial.println("f");
       motorOff();
       break;
       
