@@ -20,14 +20,12 @@
 #define STATE_BACKWARD 3
 #define STATE_OFF 4
 
-const int IN1 = P2_1;
-const int IN2 = P2_0;
-const int IN3 = P1_4;
-const int IN4 = P1_5;
+const int IN1 = P2_0;
+const int IN2 = P2_1;
+const int IN3 = P1_5;
+const int IN4 = P1_4;
 
-const int MOSFET_TOP = P2_3;
 // P2_4 always 3.3v, probably damaged on this MSP430G2553
-const int MOSFET_BOTTOM = P2_5;
 
 // initial states
 unsigned char steeringState = STATE_OFF;
@@ -40,14 +38,14 @@ inline void right()
 {
   steeringState = STATE_RIGHT;
   digitalWrite(IN3, LOW); 
-  analogWrite(IN4, 180); //min possible value 150 for steering coil
+  analogWrite(IN4, 255); //min possible value 150 for steering coil
 }
 
 
 inline void left()
 {
   steeringState = STATE_LEFT;
-  analogWrite(IN3, 180); 
+  analogWrite(IN3, 255); 
   digitalWrite(IN4, LOW); 
 }
 
@@ -69,42 +67,19 @@ else if(steeringState == STATE_LEFT)
 }
 }
 
-inline void forward(bool bypassResistor)
+inline void forward()
 {
   motorState = STATE_FORWARD;
   digitalWrite(IN2,LOW);
   analogWrite(IN1,analogLevel);
-
-  if(bypassResistor)
-  {
-    digitalWrite(MOSFET_BOTTOM,HIGH);
-    digitalWrite(MOSFET_TOP,HIGH);
-  }
-  else
-  {
-    digitalWrite(MOSFET_BOTTOM,LOW);
-    digitalWrite(MOSFET_TOP,LOW);
-  }
   
 }
 
-inline void backward(bool bypassResistor)
+inline void backward()
 {
   motorState = STATE_BACKWARD;
   analogWrite(IN2,analogLevel);
   digitalWrite(IN1,LOW);
-
-   if(bypassResistor)
-  {
-
-    digitalWrite(MOSFET_BOTTOM,HIGH);
-    digitalWrite(MOSFET_TOP,HIGH);
-  }
-  else
-  {
-     digitalWrite(MOSFET_BOTTOM,LOW);
-    digitalWrite(MOSFET_TOP,LOW);
-  }
 }
 
 inline void motorOff()
@@ -133,11 +108,6 @@ pinMode(IN2, OUTPUT);
 pinMode(IN1, OUTPUT); 
 
 
-pinMode(MOSFET_BOTTOM, OUTPUT); 
-pinMode(MOSFET_TOP, OUTPUT); 
-digitalWrite(MOSFET_BOTTOM,LOW);
-digitalWrite(MOSFET_TOP,LOW);
-
 steeringCoilOff();
 motorOff();
 
@@ -150,13 +120,6 @@ int incomingByte = 0;
 
 void loop() {
   
-//  if(millis()%100 == 0)
-//  {
-//    OnTimer();
-//    
-//
-//    analogWrite(IN1,analogLevel);
-//  }
   
   if (Serial.available() > 0) 
   {
@@ -166,23 +129,13 @@ void loop() {
     switch(incomingByte)
     {
       case 's': 
-      backward(true);
+      backward();
       Serial.println("backward");
       break;
       
       case 'w':
-      forward(true);
-      Serial.println("forward with resistor");
-      break;
-
-      case 't':
-      forward(false);
+      forward();
       Serial.println("forward");
-      break;
-
-      case 'z':
-      backward(false);
-      Serial.println("backward with resistor");
       break;
       
       case 'm':
@@ -207,13 +160,13 @@ void loop() {
         {
           motorOff(); // motorState = STATE_OFF
           straightOn();
-          forward(false); // motorState = STATE_FORWARD
+          forward(); // motorState = STATE_FORWARD
         }
         else if(motorState == STATE_BACKWARD)
         {
           motorOff(); // motorState = STATE_OFF
           straightOn();
-          backward(false);  // motorState = STATE_BACKWARD
+          backward();  // motorState = STATE_BACKWARD
         }
         else if(motorState == STATE_OFF)
         {
@@ -231,11 +184,4 @@ void loop() {
   } 
 }
 
-//void OnTimer()
-//{
-//  if(analogLevel < 120)
-//  {
-//    analogLevel++;
-//  }
-//}
 
